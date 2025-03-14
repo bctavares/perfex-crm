@@ -1,35 +1,47 @@
-﻿FROM php:8.2.27-apache
+FROM php:8.2.27-apache
 
 EXPOSE 80
 
+# Atualizar pacotes e instalar dependências
 RUN apt-get update -y && \
     apt-get install -y apt-utils tree htop libpng-dev libc-client-dev libkrb5-dev libzip-dev zip --no-install-recommends 
 
-# Installing php Dependencies 
+# Configurar e instalar extensões PHP
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-install -j$(nproc) imap
 
 RUN docker-php-ext-install mysqli gd zip
 
-# Definir permissões para pastas (0755)
-RUN chmod 0755 "/uploads/proposals"
-    chmod 0755 "/uploads/estimates"
-    chmod 0755 "/uploads/ticket_attachments"
-    chmod 0755 "/uploads/tasks"
-    chmod 0755 "/uploads/staff_profile_images"
-    chmod 0755 "/uploads/projects"
-    chmod 0755 "/uploads/newsfeed"
-    chmod 0755 "/uploads/leads"
-    chmod 0755 "/uploads/invoices"
-    chmod 0755 "/uploads/expenses"
-    chmod 0755 "/uploads/discussions"
-    chmod 0755 "/uploads/contracts"
-    chmod 0755 "/uploads/company"
-    chmod 0755 "/uploads/clients"
-    chmod 0755 "/uploads/client_profile_images"
-    chmod 0755 "/application/config"
-    chmod 0755 "/temp"
+# Definir permissões para pastas e arquivos
+RUN mkdir -p /var/www/html/uploads/proposals && \
+    mkdir -p /var/www/html/uploads/estimates && \
+    mkdir -p /var/www/html/uploads/ticket_attachments && \
+    mkdir -p /var/www/html/uploads/tasks && \
+    mkdir -p /var/www/html/uploads/staff_profile_images && \
+    mkdir -p /var/www/html/uploads/projects && \
+    mkdir -p /var/www/html/uploads/newsfeed && \
+    mkdir -p /var/www/html/uploads/leads && \
+    mkdir -p /var/www/html/uploads/invoices && \
+    mkdir -p /var/www/html/uploads/expenses && \
+    mkdir -p /var/www/html/uploads/discussions && \
+    mkdir -p /var/www/html/uploads/contracts && \
+    mkdir -p /var/www/html/uploads/company && \
+    mkdir -p /var/www/html/uploads/clients && \
+    mkdir -p /var/www/html/uploads/client_profile_images && \
+    mkdir -p /var/www/html/application/config && \
+    mkdir -p /var/www/html/temp && \
+    chmod -R 0755 /var/www/html/uploads && \
+    chmod -R 0755 /var/www/html/application/config && \
+    chmod -R 0755 /var/www/html/temp && \
+    touch /var/www/html/application/config/config.php && \
+    touch /var/www/html/application/config/app-config-sample.php && \
+    chmod 0644 /var/www/html/application/config/config.php && \
+    chmod 0644 /var/www/html/application/config/app-config-sample.php
 
-# Definir permissões para arquivos específicos
-RUN chmod 0644 "/application/config/config.php"
-    chmod 0644 "/application/config/app-config-sample.php"
+# Definir o proprietário dos arquivos (opcional, ajuste conforme necessário)
+RUN chown -R www-data:www-data /var/www/html
+
+# Limpar cache do APT
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["apache2-foreground"]
