@@ -12,6 +12,9 @@ RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
 
 RUN docker-php-ext-install mysqli gd zip
 
+# Habilitar o módulo Rewrite do Apache
+RUN a2enmod rewrite
+
 # Definir permissões para pastas e arquivos
 RUN mkdir -p /var/www/html/uploads/proposals && \
     mkdir -p /var/www/html/uploads/estimates && \
@@ -38,10 +41,11 @@ RUN mkdir -p /var/www/html/uploads/proposals && \
     chmod 0644 /var/www/html/application/config/config.php && \
     chmod 0644 /var/www/html/application/config/app-config-sample.php
 
-# Definir o proprietário dos arquivos (opcional, ajuste conforme necessário)
+# Definir o proprietário dos arquivos
 RUN chown -R www-data:www-data /var/www/html
 
 # Limpar cache do APT
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-CMD ["apache2-foreground"]
+# Iniciar o Apache
+CMD ["apachectl", "-D", "FOREGROUND"]
