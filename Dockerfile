@@ -11,9 +11,6 @@ RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
 
 RUN docker-php-ext-install mysqli gd zip
 
-# Assuming Perfex-CRM root is located in 'pwd'/perfex_crm
-RUN a2enmod rewrite
-COPY www/ /var/www/html/
 
 # Configuring Ownerships and permissions
 RUN chown -R www-data:www-data /var/www/html/
